@@ -17,7 +17,7 @@ return new class extends Migration
                   ->onDelete('cascade');
 
             $table->string('name');
-            $table->string('year');
+            $table->integer('year');
         });
     }
 

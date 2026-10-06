@@ -4,18 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CarsModell extends Model
+class CarsManufact extends Model
 {
     public $timestamps = false;
-
-    /**
-     * Tömegesen kitölthető mezők.
-     */
+    protected $table = 'carsManufact';
     protected $fillable = ['name'];
 
-
-    public function cities()
+    public function carsModells()
     {
-        return $this->hasMany(City::class);
+        return $this->hasMany(CarsModell::class,'carsManufact_id');
     }
 }

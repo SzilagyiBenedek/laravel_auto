@@ -1,37 +1,86 @@
 <?php
- namespace App\Http\Controllers;
- use App\Models\CarsManufact;
- use Illuminate\Http\Request;
- class CarsManufactController extends Controller
-  { 
-    /** * Display a listing of the resource. */ 
-    public function index(Request $request)
-    { $needle = $request->input('needle');
-        $query = CarsManufact::query();
-        if ($needle) { $query->where('name', 'like', "%{$needle}%");} 
-        $carsManufact = $query->get();
-        return view( 'carsManufact.index', compact('carsManufact', 'needle') );
-    } 
-/** * Show the form for creating a new resource. */
-public function create()
-    { 
-        return view('carsManufact.create'); 
-    } 
-    /** * Store a newly created resource in storage. */
-    public function store(Request $request) 
+
+namespace App\Http\Controllers;
+
+use App\Models\CarsModell;
+use App\Models\CarsManufact;
+use Illuminate\Http\Request;
+
+class CarsModellController extends Controller
+{
+    public function index()
     {
-        $validated = $request->validate([ 'name' => ['required', 'string', 'max:255'], ]);
-         CarsManufact::create($validated);
-         return redirect() ->route('carsManufact.index') ->with('success', 'Autógyártó létrehozva!'); 
+        $carsModells = CarsModell::with('carsManufact')->get();
+
+        return view('carsModell.index', compact('carsModells'));
     }
-    public function show(CarsManufact $carsManufact)
+
+    public function create()
     {
-        return view( 'carsManufact.show', compact('carsManufact') ); 
-    } 
-    /** * Show the form for editing the specified resource. */
-    public function edit(CarsManufact $carsManufact)
-    {
-         return view( 'carsManufact.edit', compact('carsManufact') ); 
+        $carsManufacts = CarsManufact::all();
+
+        return view('carsModell.create', compact('carsManufacts'));
     }
-     /** * Update the specified resource in storage. */ 
-     public function update( Request $request, CarsManufact $carsManufact ) { $validated = $request->validate([ 'name' => ['required', 'string', 'max:255'], ]); $carsManufact->update($validated); return redirect() ->route('carsManufact.index') ->with('success', 'Autógyártó frissítve!'); } /** * Remove the specified resource from storage. */ public function destroy(CarsManufact $carsManufact) { $carsManufact->delete(); return redirect() ->route('carsManufact.index') ->with('status', 'Autógyártó törölve!'); } }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'year' => ['required', 'integer'],
+            'carsManufact_id' => [
+                'required',
+                'exists:carsManufact,id',
+            ],
+        ]);
+
+        CarsModell::create($validated);
+
+        return redirect()
+            ->route('carsModell.index')
+            ->with('status', 'Autómodell sikeresen létrehozva!');
+    }
+
+    public function show(CarsModell $carsModell)
+    {
+        $carsModell->load('carsManufact');
+
+        return view('carsModell.show', compact('carsModell'));
+    }
+
+    public function edit(CarsModell $carsModell)
+    {
+        $carsManufacts = CarsManufact::all();
+
+        return view(
+            'carsModell.edit',
+            compact('carsModell', 'carsManufacts')
+        );
+    }
+
+    public function update(Request $request, CarsModell $carsModell)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'year' => ['required', 'integer'],
+            'carsManufact_id' => [
+                'required',
+                'exists:carsManufact,id',
+            ],
+        ]);
+
+        $carsModell->update($validated);
+
+        return redirect()
+            ->route('carsModell.index')
+            ->with('status', 'Autómodell sikeresen frissítve!');
+    }
+
+    public function destroy(CarsModell $carsModell)
+    {
+        $carsModell->delete();
+
+        return redirect()
+            ->route('carsModell.index')
+            ->with('status', 'Autómodell sikeresen törölve!');
+    }
+}

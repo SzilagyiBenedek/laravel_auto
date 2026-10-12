@@ -8,25 +8,27 @@ use Illuminate\Http\Request;
 class CarsManufactController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Autógyártók listázása és keresése.
      */
-    public function index(Request $request)
-    {
-        $needle = $request->input('needle');
+public function index(Request $request)
+{
+    $needle = $request->input('needle');
 
-        $query = CarsManufactController::query();
+    $query = CarsManufact::query();
 
-        if ($needle) {
-            $query->where('name', 'like', "%{$needle}%");
-        }
-
-        $counties = $query->get();
-
-        return view('carsManufact.index', compact('carsManufact', 'needle'));
+    if ($needle) {
+        $query->where('name', 'like', "%{$needle}%");
     }
 
+    $carsManufacts = $query->get();
+
+    return view(
+        'carsManufact.index',
+        compact('carsManufacts', 'needle')
+    );
+}
     /**
-     * Show the form for creating a new resource.
+     * Új autógyártó űrlapja.
      */
     public function create()
     {
@@ -34,64 +36,70 @@ class CarsManufactController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Új autógyártó mentése.
      */
-     public function store(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $carManufact = CarsManufact::create($validated);
-        $carsManufact = CarsManufact::all();
+        CarsManufact::create($validated);
 
         return redirect()
             ->route('carsManufact.index')
-            ->with('success', 'autó gyártó létrehozva!');
-    }
-    /**
-     * Display the specified resource.
-     */
-      public function show(CarsManufact $carsManufact)
-    {
-        return view('carsManufact.show', compact('carmanufact'));
-        // API: return response()->json($county);
+            ->with('success', 'Autógyártó létrehozva!');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Egy autógyártó megjelenítése.
      */
-        public function edit(CarsManufact $carsManufact)
+    public function show(CarsManufact $carsManufact)
     {
-        return view('carsManufact.edit', compact('carManufact'));
+        return view(
+            'carsManufact.show',
+            compact('carsManufact')
+        );
     }
+
     /**
-     * Update the specified resource in storage.
+     * Szerkesztőűrlap.
      */
-    public function update(Request $request, CarsManufact $carsManufact)
+    public function edit(CarsManufact $carsManufact)
     {
+        return view(
+            'carsManufact.edit',
+            compact('carsManufact')
+        );
+    }
+
+    /**
+     * Autógyártó frissítése.
+     */
+    public function update(
+        Request $request,
+        CarsManufact $carsManufact
+    ) {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
 
         $carsManufact->update($validated);
 
-        $carsManufact = CarsManufact::all();
-
         return redirect()
             ->route('carsManufact.index')
-            ->with('success', 'autó gyátró frissítve!');
+            ->with('success', 'Autógyártó frissítve!');
     }
+
     /**
-     * Remove the specified resource from storage.
+     * Autógyártó törlése.
      */
-     public function destroy(CarsManufact $carsManufact)
+    public function destroy(CarsManufact $carsManufact)
     {
         $carsManufact->delete();
 
         return redirect()
             ->route('carsManufact.index')
-            ->with('status', 'autó gyártó törölve!');
-    
+            ->with('status', 'Autógyártó törölve!');
     }
 }
